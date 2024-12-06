@@ -9,7 +9,6 @@ const router = express.Router();
 
 router.post("/login", async (req: Request, res: Response) => {
     const model = req.body;
-    console.log(model.username);
     const result = await login(model);
     res.send(result);
 });
@@ -20,8 +19,14 @@ router.post("/register", async (req: Request, res: Response) => {
     res.send(result);
 });
 
-router.post("/logout", authUser, async (req: Request, res: Response) => {
+router.post("/logout", async (req: Request, res: Response) => {
     try {
+        const isAuthed = authUser(req, res);
+
+        if (!isAuthed) {
+            return;
+        }
+
         const username = getUserName(req);
         await logout(username);
         res.status(200).json({ message: "Logout successful" });
