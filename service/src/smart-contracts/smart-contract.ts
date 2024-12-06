@@ -1,5 +1,5 @@
 const Web3Lib = require('web3');
-const { abi, bytecode } = require('./compile');
+const { abi, bytecode } = require('../../../blockchain/compile');
 
 let accounts;
 let userImageStore;

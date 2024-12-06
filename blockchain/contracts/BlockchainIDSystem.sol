@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.27;
+pragma solidity ^0.8.26;
 
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract BlockchainIDSystem is Ownable {
+    using Strings for uint256;
+
     struct User {
         string login;
         bytes32 passwordHash;
@@ -37,6 +40,8 @@ contract BlockchainIDSystem is Ownable {
     event PersonalDataUpdated(string login);
     event VerificationRequested(string requesterLogin, string targetLogin);
     event VerificationConfirmed(string verifierLogin, string targetLogin);
+
+    constructor() Ownable(0x2e509A864c6376107155B0Bfb70f91FB370D876E) {}
 
     modifier onlyLoggedIn(string memory login) {
         require(users[login].isLoggedIn, "User must be logged in to perform this action.");
@@ -105,7 +110,7 @@ contract BlockchainIDSystem is Ownable {
         emit VerificationRequested(requesterLogin, targetLogin);
     }
 
-    function confirmVerification(string memory verifierLogin, string memory targetLogin) public onlyLoggedIn(verifierLogin) {
+     function confirmVerification(string memory verifierLogin, string memory targetLogin) public onlyLoggedIn(verifierLogin) {
         require(bytes(users[targetLogin].login).length > 0, "Target user does not exist.");
 
         VerificationRequest[] storage requests = verificationRequests[targetLogin];
