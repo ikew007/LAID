@@ -7,12 +7,17 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract BlockchainIDSystem is Ownable {
     using Strings for uint256;
 
+    struct Verifier {
+        string login;
+        string confirmationDate;
+    }
+
     struct User {
         string login;
         bytes32 passwordHash;
         bool isLoggedIn;
         PersonalData personalData;
-        string[] verificationLogins;
+        Verifier[] verifiers;
     }
 
     struct PersonalData {
@@ -23,7 +28,6 @@ contract BlockchainIDSystem is Ownable {
         string gender;
         string citizenship;
         string placeOfBirth;
-        string confirmationDate;
     }
 
     struct VerificationRequest {
@@ -93,8 +97,7 @@ contract BlockchainIDSystem is Ownable {
             dateOfBirth: dateOfBirth,
             gender: gender,
             citizenship: citizenship,
-            placeOfBirth: placeOfBirth,
-            confirmationDate: ""
+            placeOfBirth: placeOfBirth
         });
 
         emit PersonalDataUpdated(login);
@@ -110,7 +113,7 @@ contract BlockchainIDSystem is Ownable {
         emit VerificationRequested(requesterLogin, targetLogin);
     }
 
-     function confirmVerification(string memory verifierLogin, string memory targetLogin) public onlyLoggedIn(verifierLogin) {
+    function confirmVerification(string memory verifierLogin, string memory targetLogin) public onlyLoggedIn(verifierLogin) {
         require(bytes(users[targetLogin].login).length > 0, "Target user does not exist.");
 
         VerificationRequest[] storage requests = verificationRequests[targetLogin];
@@ -131,15 +134,23 @@ contract BlockchainIDSystem is Ownable {
 
         require(requestFound, "Verification request not found.");
 
-        users[targetLogin].verificationLogins.push(verifierLogin);
-        users[targetLogin].personalData.confirmationDate = block.timestamp.toString();
+        User storage targetUser = users[targetLogin];
+
+        targetUser.verifiers.push(Verifier({
+            login: verifierLogin,
+            confirmationDate: block.timestamp.toString()
+        }));
 
         emit VerificationConfirmed(verifierLogin, targetLogin);
     }
 
-    function getPersonalData(string memory login) public view onlyLoggedIn(login) returns (PersonalData memory, string[] memory) {
+    function getPersonalData(string memory login) public view onlyLoggedIn(login) returns (PersonalData memory, Verifier[] memory) {
         User storage user = users[login];
-        return (user.personalData, user.verificationLogins);
+        return (user.personalData, user.verifiers);
+    }
+
+    function setPersonalData(string memory login, PersonalData memory personalData) public onlyLoggedIn(login) {
+        users[login].personalData = personalData;
     }
 
     function getVerificationRequests(string memory login) public view onlyLoggedIn(login) returns (VerificationRequest[] memory) {

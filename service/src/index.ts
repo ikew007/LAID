@@ -5,6 +5,7 @@ import cors from "cors";
 import { buildClient } from "./smart-contracts/smart-contract";
 
 import auth from "./api/auth.routes";
+import personalData from "./api/personalData.routes";
 
 main();
 
@@ -33,7 +34,7 @@ async function main() {
 	});
 
 	app.use("/auth", auth);
-	// app.use("/images", image);
+	app.use("/personalData", personalData);
 	// app.use("/exchange", exchange);
 
 	await app.listen(port);

@@ -2,7 +2,7 @@ const Web3Lib = require('web3');
 const { abi, bytecode } = require('../../../blockchain/compile');
 
 let accounts;
-let userImageStore;
+let LAID;
 let contract: any;
 
 const web3 = new Web3Lib.Web3('http://127.0.0.1:8545');
@@ -11,14 +11,14 @@ let fromAddress: string;
 
 export async function buildClient() {
     await deployContract();
-    const contractAddress = userImageStore!.options.address;
+    const contractAddress = LAID!.options.address;
     contract = new web3.eth.Contract(abi, contractAddress);
     fromAddress = accounts![0];
 }
 
 async function deployContract() {
     accounts = await web3.eth.getAccounts();
-    userImageStore = await new web3.eth.Contract(abi)
+    LAID = await new web3.eth.Contract(abi)
         .deploy({ data: bytecode })
         .send({ from: accounts[0], gas: 30000000 });
 }
@@ -53,6 +53,36 @@ export async function logoutUser(login: string): Promise<void> {
     }
     catch (error) {
         console.error(error);
+    }
+}
+
+//#endregion
+
+
+//#region personalData
+
+export async function getPersonalData(login: string): Promise<any> {
+    try {
+        const response = await contract.methods.getPersonalData(login).call({ from: fromAddress });
+        return {
+            personalData: response["0"],
+            verifiers: response["1"],
+        }
+    }
+    catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+
+export async function setPersonalData(login: string, personalData: any): Promise<boolean> {
+    try {
+        await contract.methods.setPersonalData(login, personalData).send({ from: fromAddress });
+        return true;
+    }
+    catch (error) {
+        console.error(error);
+        return false;
     }
 }
 

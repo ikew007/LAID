@@ -4,7 +4,7 @@ import { verifyJwtToken } from "./jwt.helper";
 
 export function authUser(req: Request, res: Response) {
     const token = req.headers.authorization;
-    console.log(token);
+
     if (token) {
         const isValid = verifyJwtToken(token);
         if (isValid) {
