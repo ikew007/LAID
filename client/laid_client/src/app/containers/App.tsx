@@ -3,7 +3,7 @@ import Login from '../../pages/login';
 import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute.tsx';
 import {useAuth} from "../../hooks/useAuth.ts";
 import Profile from "../../pages/profile";
-import {Box} from '@mui/material';
+import {Box, CssBaseline} from '@mui/material';
 import {SideMenu} from "../../components/SideMenu";
 
 function DefaultRoute() {
@@ -16,26 +16,24 @@ function App() {
 
   return (
     <Router>
+      <CssBaseline />
       <Box sx={{display: 'flex'}}>
         {isAuthenticated && <SideMenu/>}
 
-        <Box sx={{flex: 1, marginLeft: isAuthenticated ? '250px' : '0px'}}>
+        <Box
+          component="main"
+          sx={{
+            flex: 1,
+            padding: '20px',
+            ml: isAuthenticated ? '250px' : '0px',
+            transition: 'all 0.3s ease',
+            minHeight: '100vh'
+          }}
+        >
           <Routes>
-            {/* Default Route */}
             <Route path="/" element={<DefaultRoute/>}/>
-
-            {/* Public Route */}
             <Route path="/auth" element={<Login/>}/>
-
-            {/* Protected Route */}
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Profile/>
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/profile" element={<ProtectedRoute><Profile/></ProtectedRoute>}/>
           </Routes>
         </Box>
       </Box>
