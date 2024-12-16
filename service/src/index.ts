@@ -6,6 +6,7 @@ import { buildClient } from "./smart-contracts/smart-contract";
 
 import auth from "./api/auth.routes";
 import personalData from "./api/personalData.routes";
+import requests from "./api/verifications.routes";
 
 main();
 
@@ -21,9 +22,9 @@ async function main() {
 	const app: Express = express();
 	const port = process.env.PORT || 3000;
 
-	log("Building contract...", 'c');
-	await buildClient();
-	log("Contract builded successfully", 'g');
+	log("Building client...", 'c');
+	const contractAddress = await buildClient();
+	log(`Contract client is ready. Address: ${contractAddress}`, 'g');
 
 	app.use(cors());
 	app.use(express.json());
@@ -35,7 +36,7 @@ async function main() {
 
 	app.use("/auth", auth);
 	app.use("/personalData", personalData);
-	// app.use("/exchange", exchange);
+	app.use("/verifications", requests);
 
 	await app.listen(port);
 	log(`Server is running on http://localhost:${port}`, 'g');

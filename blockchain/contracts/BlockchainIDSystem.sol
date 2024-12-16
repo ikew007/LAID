@@ -7,11 +7,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract BlockchainIDSystem is Ownable {
     using Strings for uint256;
 
-    struct Verifier {
-        string login;
-        string confirmationDate;
-    }
-
     struct User {
         string login;
         bytes32 passwordHash;
@@ -30,20 +25,26 @@ contract BlockchainIDSystem is Ownable {
         string placeOfBirth;
     }
 
+    struct Verifier {
+        string login;
+        string confirmationDate;
+    }
+
     struct VerificationRequest {
         string requesterLogin;
-        string targetLogin;
+        string verifierLogin;
     }
 
     mapping(string => User) private users;
-    mapping(string => VerificationRequest[]) private verificationRequests;
+    string[] private userLogins;
+    VerificationRequest[] private allVerificationRequests;
 
     event UserRegistered(string login);
     event UserLoggedIn(string login);
     event UserLoggedOut(string login);
     event PersonalDataUpdated(string login);
-    event VerificationRequested(string requesterLogin, string targetLogin);
-    event VerificationConfirmed(string verifierLogin, string targetLogin);
+    event VerificationRequested(string requesterLogin, string verifierLogin);
+    event VerificationConfirmed(string requesterLogin, string verifierLogin);
 
     constructor() Ownable(0x2e509A864c6376107155B0Bfb70f91FB370D876E) {}
 
@@ -58,6 +59,7 @@ contract BlockchainIDSystem is Ownable {
         users[login].login = login;
         users[login].passwordHash = keccak256(abi.encodePacked(password));
         users[login].isLoggedIn = false;
+        userLogins.push(login);
 
         emit UserRegistered(login);
     }
@@ -103,45 +105,109 @@ contract BlockchainIDSystem is Ownable {
         emit PersonalDataUpdated(login);
     }
 
-    function requestVerification(string memory requesterLogin, string memory targetLogin) public onlyLoggedIn(requesterLogin) {
-        require(bytes(users[targetLogin].login).length > 0, "Target user does not exist.");
-        verificationRequests[targetLogin].push(VerificationRequest({
+    function requestVerification(string memory requesterLogin, string memory verifierLogin) public onlyLoggedIn(requesterLogin) {
+        require(bytes(users[verifierLogin].login).length > 0, "Verifier does not exist.");
+        require(bytes(users[requesterLogin].login).length > 0, "Requester does not exist.");
+        require(keccak256(abi.encodePacked(requesterLogin)) != keccak256(abi.encodePacked(verifierLogin)), "Requester and verifier cannot be the same.");
+
+        for (uint256 i = 0; i < allVerificationRequests.length; i++) {
+            require(
+                keccak256(abi.encodePacked(allVerificationRequests[i].requesterLogin)) != keccak256(abi.encodePacked(requesterLogin)) ||
+                keccak256(abi.encodePacked(allVerificationRequests[i].verifierLogin)) != keccak256(abi.encodePacked(verifierLogin)),
+                "Verification request already exists."
+            );
+        }
+
+        allVerificationRequests.push(VerificationRequest({
             requesterLogin: requesterLogin,
-            targetLogin: targetLogin
+            verifierLogin: verifierLogin
         }));
 
-        emit VerificationRequested(requesterLogin, targetLogin);
+        emit VerificationRequested(requesterLogin, verifierLogin);
     }
 
-    function confirmVerification(string memory verifierLogin, string memory targetLogin) public onlyLoggedIn(verifierLogin) {
-        require(bytes(users[targetLogin].login).length > 0, "Target user does not exist.");
+    function revertVerification(string memory requesterLogin, string memory verifierLogin) public onlyLoggedIn(requesterLogin) {
+        require(bytes(users[verifierLogin].login).length > 0, "Verifier does not exist.");
+        require(bytes(users[requesterLogin].login).length > 0, "Requester does not exist.");
+        require(keccak256(abi.encodePacked(requesterLogin)) != keccak256(abi.encodePacked(verifierLogin)), "Requester and verifier cannot be the same.");
 
-        VerificationRequest[] storage requests = verificationRequests[targetLogin];
         bool requestFound = false;
-
-        for (uint256 i = 0; i < requests.length; i++) {
-            if (keccak256(abi.encodePacked(requests[i].requesterLogin)) == keccak256(abi.encodePacked(verifierLogin))) {
+        for (uint256 i = 0; i < allVerificationRequests.length; i++) {
+            if (
+                keccak256(abi.encodePacked(allVerificationRequests[i].requesterLogin)) == keccak256(abi.encodePacked(requesterLogin)) &&
+                keccak256(abi.encodePacked(allVerificationRequests[i].verifierLogin)) == keccak256(abi.encodePacked(verifierLogin))
+            ) {
                 requestFound = true;
 
-                // Remove the confirmed request
-                for (uint256 j = i; j < requests.length - 1; j++) {
-                    requests[j] = requests[j + 1];
+                // Remove the request
+                for (uint256 j = i; j < allVerificationRequests.length - 1; j++) {
+                    allVerificationRequests[j] = allVerificationRequests[j + 1];
                 }
-                requests.pop();
+                allVerificationRequests.pop();
+                break;
+            }
+        }
+
+        require(requestFound, "Verification request not found.");
+    }
+
+    function confirmVerification(string memory requesterLogin, string memory verifierLogin) public onlyLoggedIn(verifierLogin) {
+        require(bytes(users[verifierLogin].login).length > 0, "Verifier does not exist.");
+        require(bytes(users[requesterLogin].login).length > 0, "Requester does not exist.");
+        require(keccak256(abi.encodePacked(requesterLogin)) != keccak256(abi.encodePacked(verifierLogin)), "Requester and verifier cannot be the same.");
+
+        bool requestFound = false;
+        for (uint256 i = 0; i < allVerificationRequests.length; i++) {
+            if (
+                keccak256(abi.encodePacked(allVerificationRequests[i].requesterLogin)) == keccak256(abi.encodePacked(requesterLogin)) &&
+                keccak256(abi.encodePacked(allVerificationRequests[i].verifierLogin)) == keccak256(abi.encodePacked(verifierLogin))
+            ) {
+                requestFound = true;
+
+                // Remove the request
+                for (uint256 j = i; j < allVerificationRequests.length - 1; j++) {
+                    allVerificationRequests[j] = allVerificationRequests[j + 1];
+                }
+                allVerificationRequests.pop();
                 break;
             }
         }
 
         require(requestFound, "Verification request not found.");
 
-        User storage targetUser = users[targetLogin];
+        User storage targetUser = users[requesterLogin];
 
         targetUser.verifiers.push(Verifier({
             login: verifierLogin,
             confirmationDate: block.timestamp.toString()
         }));
 
-        emit VerificationConfirmed(verifierLogin, targetLogin);
+        emit VerificationConfirmed(requesterLogin, verifierLogin);
+    }
+
+    function rejectVerification(string memory requesterLogin, string memory verifierLogin) public onlyLoggedIn(verifierLogin) {
+        require(bytes(users[verifierLogin].login).length > 0, "Verifier does not exist.");
+        require(bytes(users[requesterLogin].login).length > 0, "Requester does not exist.");
+        require(keccak256(abi.encodePacked(requesterLogin)) != keccak256(abi.encodePacked(verifierLogin)), "Requester and verifier cannot be the same.");
+
+        bool requestFound = false;
+        for (uint256 i = 0; i < allVerificationRequests.length; i++) {
+            if (
+                keccak256(abi.encodePacked(allVerificationRequests[i].requesterLogin)) == keccak256(abi.encodePacked(requesterLogin)) &&
+                keccak256(abi.encodePacked(allVerificationRequests[i].verifierLogin)) == keccak256(abi.encodePacked(verifierLogin))
+            ) {
+                requestFound = true;
+
+                // Remove the request
+                for (uint256 j = i; j < allVerificationRequests.length - 1; j++) {
+                    allVerificationRequests[j] = allVerificationRequests[j + 1];
+                }
+                allVerificationRequests.pop();
+                break;
+            }
+        }
+
+        require(requestFound, "Verification request not found.");
     }
 
     function getPersonalData(string memory login) public view onlyLoggedIn(login) returns (PersonalData memory, Verifier[] memory) {
@@ -149,11 +215,31 @@ contract BlockchainIDSystem is Ownable {
         return (user.personalData, user.verifiers);
     }
 
+    function getPersonalDataToConfirm(string memory requesterLogin, string memory verifierLogin) public view onlyLoggedIn(verifierLogin) returns (PersonalData memory personalData) {
+        for (uint256 i = 0; i < allVerificationRequests.length; i++) {
+            if (
+                keccak256(abi.encodePacked(allVerificationRequests[i].requesterLogin)) == keccak256(abi.encodePacked(requesterLogin)) &&
+                keccak256(abi.encodePacked(allVerificationRequests[i].verifierLogin)) == keccak256(abi.encodePacked(verifierLogin))
+            ) {
+                return users[requesterLogin].personalData;
+            }
+        }
+        revert("Verification request not found.");
+    }
+
     function setPersonalData(string memory login, PersonalData memory personalData) public onlyLoggedIn(login) {
         users[login].personalData = personalData;
     }
 
-    function getVerificationRequests(string memory login) public view onlyLoggedIn(login) returns (VerificationRequest[] memory) {
-        return verificationRequests[login];
+    function getConfirmedVerifications(string memory login) public view onlyLoggedIn(login) returns (Verifier[] memory) {
+        return users[login].verifiers;
+    }
+
+    function getAllVerificationRequests() public view returns (VerificationRequest[] memory) {
+        return allVerificationRequests;
+    }
+
+    function getAllUserLogins() public view returns (string[] memory) {
+        return userLogins;
     }
 }

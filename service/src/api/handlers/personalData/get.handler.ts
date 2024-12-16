@@ -1,10 +1,9 @@
 import { getPersonalData } from "../../../smart-contracts/smart-contract";
 import { BaseResponseModel } from "../../models/base-response.model";
 import { PersonalDataSetResponseModel } from "../../models/response/personal-data-set-reponse.model";
-import { PersonalDataGetRequestModel } from "../../models/request/personal-data-get-request.model copy";
 
-export async function get(model: PersonalDataGetRequestModel): Promise<BaseResponseModel<PersonalDataSetResponseModel>> {
-    const { personalData, verifiers } = await getPersonalData(model.username);
+export async function get(login: string): Promise<BaseResponseModel<PersonalDataSetResponseModel>> {
+    const { personalData, verifiers } = await getPersonalData(login);
     if(!personalData) {
         return {
             data: null,

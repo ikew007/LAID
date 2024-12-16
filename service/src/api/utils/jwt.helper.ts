@@ -1,5 +1,6 @@
 import { sign } from 'jsonwebtoken';
 import { verify } from 'jsonwebtoken';
+import jwtDecode from 'jsonwebtoken';
 import { JwtTokenModel } from '../../api/models/jwt-token.model';
 
 export function createJwtToken(payload: JwtTokenModel): string {

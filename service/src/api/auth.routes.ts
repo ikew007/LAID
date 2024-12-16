@@ -8,15 +8,25 @@ import { authUser, getUserName } from './utils/jwt.validate';
 const router = express.Router();
 
 router.post("/login", async (req: Request, res: Response) => {
-    const model = req.body;
-    const result = await login(model);
-    res.send(result);
+    try {
+        const model = req.body;
+        const result = await login(model);
+        res.send(result);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error logging in" });
+    }
 });
 
 router.post("/register", async (req: Request, res: Response) => {
-    const model = req.body;
-    const result = await register(model);
-    res.send(result);
+    try {
+        const model = req.body;
+        const result = await register(model);
+        res.send(result);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error registering" });
+    }
 });
 
 router.post("/logout", async (req: Request, res: Response) => {

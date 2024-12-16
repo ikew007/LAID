@@ -7,28 +7,38 @@ import { authUser, getUserName } from './utils/jwt.validate';
 const router = express.Router();
 
 router.post("/get", async (req: Request, res: Response) => {
-    const isAuthed = authUser(req, res);
+    try {
+        const isAuthed = authUser(req, res);
 
-    if (!isAuthed) {
-        return;
+        if (!isAuthed) {
+            return;
+        }
+
+        const username = getUserName(req);
+        const result = await get(username);
+        res.send(result);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error getting personal data" });
     }
-
-    const model = req.body;
-    const result = await get(model);
-    res.send(result);
 });
 
 router.post("/set", async (req: Request, res: Response) => {
-    const isAuthed = authUser(req, res);
+    try {
+        const isAuthed = authUser(req, res);
 
-    if (!isAuthed) {
-        return;
+        if (!isAuthed) {
+            return;
+        }
+    
+        const username = getUserName(req);
+        const model = req.body;
+        const result = await set(username, model);
+        res.send(result);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error setting personal data" });
     }
-
-    const username = getUserName(req);
-    const model = req.body;
-    const result = await set(username, model);
-    res.send(result);
 });
 
 export default router;
