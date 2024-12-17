@@ -8,6 +8,7 @@ import { getAvailable } from "./handlers/verifications/getAvailable.handler";
 import { getRequested } from './handlers/verifications/getRequested.handler';
 import { getIncoming } from './handlers/verifications/getIncoming.handler';
 import { getConfirmed } from './handlers/verifications/getConfirmed.handler';
+import { reject } from "./handlers/verifications/reject.handler";
 
 const router = express.Router();
 
@@ -79,7 +80,7 @@ router.post("/reject", async (req: Request, res: Response) => {
         const model = req.body;
         const requesterLogin = model.requesterLogin;
         const verifierLogin = getUserName(req);
-        const result = await confirm(requesterLogin, verifierLogin);
+        const result = await reject(requesterLogin, verifierLogin);
         res.send(result);
     } catch (error) {
         console.error(error);

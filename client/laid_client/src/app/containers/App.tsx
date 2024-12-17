@@ -3,6 +3,7 @@ import Login from '../../pages/login';
 import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute.tsx';
 import {useAuth} from "../../hooks/useAuth.ts";
 import Profile from "../../pages/profile";
+import Verify from "../../pages/verify";
 import {Box, CssBaseline} from '@mui/material';
 import {SideMenu} from "../../components/SideMenu";
 
@@ -34,6 +35,7 @@ function App() {
             <Route path="/" element={<DefaultRoute/>}/>
             <Route path="/auth" element={<Login/>}/>
             <Route path="/profile" element={<ProtectedRoute><Profile/></ProtectedRoute>}/>
+            <Route path="/verify" element={<ProtectedRoute><Verify/></ProtectedRoute>}/>
           </Routes>
         </Box>
       </Box>

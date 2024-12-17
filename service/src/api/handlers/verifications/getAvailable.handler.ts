@@ -22,8 +22,12 @@ export async function getAvailable(login: string): Promise<BaseResponseModel<any
         }
     }
 
-    const available = loginsExceptSelf.filter((login: string) => {
-        return !verificationRequests.some((request: any) => request.verifierLogin === login);
+    const available = loginsExceptSelf.filter((anotherLogin: string) => {
+        return !verificationRequests.some(
+          (request: any) =>
+            request.verifierLogin === anotherLogin
+            && request.requesterLogin === login
+        );
     });
 
     const res = {

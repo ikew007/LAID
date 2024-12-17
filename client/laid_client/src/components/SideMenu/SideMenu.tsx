@@ -54,6 +54,15 @@ export default function SideMenu() {
       </Button>
       <Button
         variant='outlined'
+        className={classes.listItem}
+        onClick={() => navigate('/verify')}
+      >
+        <Typography>
+          Verify
+        </Typography>
+      </Button>
+      <Button
+        variant='outlined'
         className={classes.logoutButton}
         onClick={handleLogout}
       >
