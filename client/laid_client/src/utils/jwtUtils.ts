@@ -8,3 +8,9 @@ export const decodeJwt = (token: string | null) => {
     return null;
   }
 };
+
+export const getUsername = () : string => {
+  const token = localStorage.getItem('accessToken');
+  const decoded = decodeJwt(token);
+  return decoded?.username || '';
+};

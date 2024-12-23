@@ -9,7 +9,7 @@ import {SideMenu} from "../../components/SideMenu";
 
 function DefaultRoute() {
   const {isAuthenticated} = useAuth();
-  return isAuthenticated ? <Navigate to="/dashboard" replace/> : <Navigate to="/auth" replace/>;
+  return isAuthenticated ? <Navigate to="/profile" replace/> : <Navigate to="/auth" replace/>;
 }
 
 function App() {

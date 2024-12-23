@@ -14,7 +14,7 @@ const useStyles = makeStyles()((theme) => ({
     border: "none",
     padding: '15px',
     "&:hover": {
-      backgroundColor: theme.palette.primary.contrastText,
+      backgroundColor: `${theme.palette.primary}`,
     }
   },
   logoutButton: {

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { TextField, Button, Box, Alert } from '@mui/material';
 import { makeStyles } from 'tss-react/mui';
 import { profileApi } from "../../../api/profile";
-import { decodeJwt } from "../../../utils/jwtUtils.ts";
+import { getUsername } from "../../../utils/jwtUtils.ts";
 
 const useStyles = makeStyles()(() => ({
   root: {
@@ -49,17 +49,8 @@ export default function Profile() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const token = localStorage.getItem('accessToken');
-        if (!token) {
-          setMessage({ text: 'No token found', type: messageType.error });
-          return;
-        }
-        const decoded = decodeJwt(token);
-        if (!decoded?.username) {
-          setMessage({ text: 'Invalid token or missing username', type: messageType.error });
-          return;
-        }
-        const response = await profileApi.getProfile({ username: decoded.username });
+        const username = getUsername();
+        const response = await profileApi.getProfile({ username });
         if (response?.isSuccess) {
           setProfileData(response.data.personalData);
           setMessage({ text: '', type: '' });
