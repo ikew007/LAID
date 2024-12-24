@@ -9,7 +9,7 @@ const useStyles = makeStyles()((theme) => ({
   root: {
     justifyContent: 'center',
     alignItems: 'center',
-    height: '100vh',
+    height: '90vh',
   },
   row: {
     display: 'flex',

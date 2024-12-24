@@ -80,31 +80,6 @@ contract BlockchainIDSystem is Ownable {
         emit UserLoggedOut(login);
     }
 
-    function updatePersonalData(
-        string memory login,
-        string memory firstName,
-        string memory lastName,
-        string memory middleName,
-        string memory dateOfBirth,
-        string memory gender,
-        string memory citizenship,
-        string memory placeOfBirth
-    ) public onlyLoggedIn(login) {
-        User storage user = users[login];
-
-        user.personalData = PersonalData({
-            firstName: firstName,
-            lastName: lastName,
-            middleName: middleName,
-            dateOfBirth: dateOfBirth,
-            gender: gender,
-            citizenship: citizenship,
-            placeOfBirth: placeOfBirth
-        });
-
-        emit PersonalDataUpdated(login);
-    }
-
     function requestVerification(string memory requesterLogin, string memory verifierLogin) public onlyLoggedIn(requesterLogin) {
         require(bytes(users[verifierLogin].login).length > 0, "Verifier does not exist.");
         require(bytes(users[requesterLogin].login).length > 0, "Requester does not exist.");
@@ -229,6 +204,10 @@ contract BlockchainIDSystem is Ownable {
 
     function setPersonalData(string memory login, PersonalData memory personalData) public onlyLoggedIn(login) {
         users[login].personalData = personalData;
+
+        while (users[login].verifiers.length > 0) {
+            users[login].verifiers.pop();
+        }
     }
 
     function getConfirmedVerifications(string memory login) public view onlyLoggedIn(login) returns (Verifier[] memory) {

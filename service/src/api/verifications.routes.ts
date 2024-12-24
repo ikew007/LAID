@@ -3,7 +3,7 @@ import express, { Request, Response } from 'express';
 import { create } from './handlers/verifications/create.handler';
 import { revert } from './handlers/verifications/revert.handler';
 import { confirm } from './handlers/verifications/confirm.handler';
-import { authUser, getUserName } from './utils/jwt.validate';
+import { authUser, getUserName } from './utils/jwtjwt.validate';
 import { getAvailable } from "./handlers/verifications/getAvailable.handler";
 import { getRequested } from './handlers/verifications/getRequested.handler';
 import { getIncoming } from './handlers/verifications/getIncoming.handler';
