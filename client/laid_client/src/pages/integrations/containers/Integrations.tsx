@@ -69,8 +69,7 @@ export default function OAuthSettings() {
   };
 
   const handleTestPageClick = () => {
-    //window.open('http://localhost:5100/oauth-test', '_blank');
-    window.open('/oauth', '_blank');
+    window.open('http://localhost:5100/oauthtest', '_blank');
   };
 
   return (

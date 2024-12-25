@@ -1,5 +1,5 @@
 {
-  "name": "laid_client",
+  "name": "integration_client",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,16 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@date-io/date-fns": "^3.2.0",
     "@emotion/react": "^11.13.5",
     "@emotion/styled": "^11.13.5",
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
-    "@mui/icons-material": "^6.3.0",
     "@mui/material": "^6.1.9",
-    "@mui/x-date-pickers": "^7.23.3",
+    "@mui/icons-material": "^6.1.9",
     "@types/react-router-dom": "^5.3.3",
     "axios": "^1.7.9",
-    "crypto-js": "^4.2.0",
     "jsonwebtoken": "^9.0.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -28,7 +25,6 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
-    "@types/crypto-js": "^4.2.2",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",

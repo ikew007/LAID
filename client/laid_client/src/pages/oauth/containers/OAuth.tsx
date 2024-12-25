@@ -118,10 +118,8 @@ export default function LoginOrConsent() {
         const response = await profileApi.getProfile({ username });
         if (response?.isSuccess) {
           const personalData = response.data.personalData;
-          const personalDataJSON = JSON.stringify(personalData);
-  
           const secretKey = "secret";
-          const token = encodeJwt(personalDataJSON, secretKey);
+          const token = encodeJwt(personalData, secretKey);
   
           window.location.href = `${redirect}?token=${token}`;
         } else {
