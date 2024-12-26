@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import { TextField, Button, Box, Alert } from '@mui/material';
+import {TextField, Button, Box, Alert, Select, MenuItem} from '@mui/material';
 import { makeStyles } from 'tss-react/mui';
 import { profileApi } from "../../../api/profile";
 import { getUsername } from "../../../utils/jwtUtils.ts";
+import { countries } from 'countries-list';
+import {DatePicker} from "@mui/x-date-pickers";
 
 const useStyles = makeStyles()(() => ({
   root: {
@@ -38,7 +40,7 @@ export default function Profile() {
     firstName: '',
     lastName: '',
     middleName: '',
-    dateOfBirth: '',
+    dateOfBirth: null as Date | null,
     gender: '',
     citizenship: '',
     placeOfBirth: '',
@@ -46,13 +48,19 @@ export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' }); // type: 'success' or 'error'
 
+  const genders = ['Male', 'Female', 'Other'];
+  const citizenships = Object.values(countries).map((country) => country.name);
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const username = getUsername();
         const response = await profileApi.getProfile({ username });
         if (response?.isSuccess) {
-          setProfileData(response.data.personalData);
+          setProfileData({
+            ...response.data.personalData,
+            dateOfBirth: response.data.personalData.dateOfBirth ? new Date(response.data.personalData.dateOfBirth) : null,
+          });
           setMessage({ text: '', type: '' });
         } else {
           setMessage({ text: 'Failed to fetch profile', type: messageType.error });
@@ -74,6 +82,13 @@ export default function Profile() {
     }));
   };
 
+  const handleDateChange = (newDate: Date | null) => {
+    setProfileData((prev) => ({
+      ...prev,
+      dateOfBirth: newDate,
+    }));
+  };
+
   const handleEditClick = () => {
     setMessage({ text: '', type: '' });
     setIsEditing(true);
@@ -86,9 +101,17 @@ export default function Profile() {
 
   const handleSaveClick = async () => {
     try {
-      const response = await profileApi.setProfile({ personalData: profileData });
+      const response = await profileApi.setProfile({
+        personalData: {
+          ...profileData,
+          dateOfBirth: profileData.dateOfBirth ? profileData.dateOfBirth.toISOString() : '',
+        },
+      });
       if (response?.isSuccess) {
-        setProfileData(response.data.personalData);
+        setProfileData({
+          ...response.data.personalData,
+          dateOfBirth: new Date(response.data.personalData.dateOfBirth),
+        });
         setIsEditing(false);
         setMessage({ text: 'Profile saved successfully!', type: messageType.success });
       } else {
@@ -122,7 +145,7 @@ export default function Profile() {
           name="firstName"
           value={profileData.firstName}
           onChange={handleInputChange}
-          InputProps={{ readOnly: !isEditing }}
+          disabled={!isEditing}
           fullWidth
         />
         <TextField
@@ -130,7 +153,7 @@ export default function Profile() {
           name="lastName"
           value={profileData.lastName}
           onChange={handleInputChange}
-          InputProps={{ readOnly: !isEditing }}
+          disabled={!isEditing}
           fullWidth
         />
         <TextField
@@ -138,39 +161,55 @@ export default function Profile() {
           name="middleName"
           value={profileData.middleName}
           onChange={handleInputChange}
-          InputProps={{ readOnly: !isEditing }}
+          disabled={!isEditing}
           fullWidth
         />
-        <TextField
+        <DatePicker
           label="Date of Birth"
-          name="dateOfBirth"
           value={profileData.dateOfBirth}
-          onChange={handleInputChange}
-          InputProps={{ readOnly: !isEditing }}
-          fullWidth
+          onChange={handleDateChange}
+          disabled={!isEditing}
         />
-        <TextField
-          label="Gender"
+        <Select
           name="gender"
           value={profileData.gender}
           onChange={handleInputChange}
-          InputProps={{ readOnly: !isEditing }}
+          displayEmpty
           fullWidth
-        />
-        <TextField
-          label="Citizenship"
+          disabled={!isEditing}
+        >
+          <MenuItem value="" disabled>
+            Select Gender
+          </MenuItem>
+          {genders.map((gender) => (
+            <MenuItem key={gender} value={gender}>
+              {gender}
+            </MenuItem>
+          ))}
+        </Select>
+        <Select
           name="citizenship"
           value={profileData.citizenship}
           onChange={handleInputChange}
-          InputProps={{ readOnly: !isEditing }}
+          displayEmpty
           fullWidth
-        />
+          disabled={!isEditing}
+        >
+          <MenuItem value="" disabled>
+            Select Citizenship
+          </MenuItem>
+          {citizenships.map((citizen) => (
+            <MenuItem key={citizen} value={citizen}>
+              {citizen}
+            </MenuItem>
+          ))}
+        </Select>
         <TextField
           label="Place of Birth"
           name="placeOfBirth"
           value={profileData.placeOfBirth}
           onChange={handleInputChange}
-          InputProps={{ readOnly: !isEditing }}
+          disabled={!isEditing}
           fullWidth
         />
         {isEditing ? (
