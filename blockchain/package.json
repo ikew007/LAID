@@ -9,11 +9,16 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "hardhat": "^2.22.17"
-  },
   "dependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "@openzeppelin/contracts": "^5.1.0",
-    "@nomicfoundation/hardhat-toolbox": "^5.0.0"
+    "chai": "^4.3.7",
+    "chai-as-promised": "^8.0.1",
+    "solc": "^0.8.27",
+    "web3": "^4.13.0"
+  },
+  "devDependencies": {
+    "hardhat": "^2.22.12",
+    "mocha": "^10.7.3"
   }
 }
