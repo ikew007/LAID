@@ -9,7 +9,7 @@ const useStyles = makeStyles()((theme) => ({
   root: {
     justifyContent: 'center',
     alignItems: 'center',
-    height: '90vh',
+    height: '100vh',
   },
   row: {
     display: 'flex',
@@ -45,7 +45,7 @@ const useStyles = makeStyles()((theme) => ({
   },
   padding3: {
     padding: theme.spacing(3),
-  }
+  },
 }));
 
 const messageType = {

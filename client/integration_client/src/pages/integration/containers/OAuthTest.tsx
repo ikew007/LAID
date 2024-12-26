@@ -60,9 +60,15 @@ export default function OAuthTest() {
 
   useEffect(() => {
     const token = searchParams.get("token");
+    if (!token) {
+      return
+    }
     const decodedToken = decodeJwt(token);
     if (decodedToken) {
       setProfileData(decodedToken as ProfileData);
+      setMessage({text: 'Verified personal data has been successfully received from LAID', type: messageType.success});
+    } else {
+      setMessage({text: 'Failed to receive verified personal data from LAID', type: messageType.error});
     }
   }, [searchParams]);
 
@@ -87,7 +93,7 @@ export default function OAuthTest() {
         color="error"
         style={{border: "none", fontSize: '20px'}}
       >
-        Personal Information
+        Provide verified personal data
       </Button>
       {message.text && (
         <Alert
@@ -104,6 +110,8 @@ export default function OAuthTest() {
           value={profileData.firstName}
           onChange={handleInputChange}
           fullWidth
+          color='error'
+          focused={true}
         />
         <TextField
           label="Last Name"
@@ -111,6 +119,8 @@ export default function OAuthTest() {
           value={profileData.lastName}
           onChange={handleInputChange}
           fullWidth
+          color='error'
+          focused={true}
         />
         <TextField
           label="Middle Name"
@@ -118,6 +128,8 @@ export default function OAuthTest() {
           value={profileData.middleName}
           onChange={handleInputChange}
           fullWidth
+          color='error'
+          focused={true}
         />
         <TextField
           label="Date of Birth"
@@ -125,6 +137,8 @@ export default function OAuthTest() {
           value={profileData.dateOfBirth}
           onChange={handleInputChange}
           fullWidth
+          color='error'
+          focused={true}
         />
         <TextField
           label="Gender"
@@ -132,6 +146,8 @@ export default function OAuthTest() {
           value={profileData.gender}
           onChange={handleInputChange}
           fullWidth
+          color='error'
+          focused={true}
         />
         <TextField
           label="Citizenship"
@@ -139,6 +155,8 @@ export default function OAuthTest() {
           value={profileData.citizenship}
           onChange={handleInputChange}
           fullWidth
+          color='error'
+          focused={true}
         />
         <TextField
           label="Place of Birth"
@@ -146,6 +164,8 @@ export default function OAuthTest() {
           value={profileData.placeOfBirth}
           onChange={handleInputChange}
           fullWidth
+          color='error'
+          focused={true}
         />
         <Button variant="contained" onClick={handleSignIn} color="error">
           <Box

@@ -1,5 +1,5 @@
-import jwtDecode, {JwtPayload} from 'jsonwebtoken';
-import CryptoJS from 'crypto-js';
+import jwtDecode, {JwtPayload, Secret} from 'jsonwebtoken';
+// import CryptoJS from 'crypto-js';
 
 export const decodeJwt = (token: string | null) => {
   try {
@@ -12,13 +12,7 @@ export const decodeJwt = (token: string | null) => {
 
 export const encodeJwt = (payload: object, secret: string): string => {
   const header = { alg: "HS256", typ: "JWT" };
-  const encodeBase64 = (obj: object) => btoa(JSON.stringify(obj));
-
-  const headerEncoded = encodeBase64(header);
-  const payloadEncoded = encodeBase64(payload);
-  const signature = CryptoJS.HmacSHA256(`${headerEncoded}.${payloadEncoded}`, secret).toString(CryptoJS.enc.Base64);
-
-  return `${headerEncoded}.${payloadEncoded}.${signature}`;
+  return jwtDecode.sign(payload, secret as Secret, { header });
 };
 
 export const getUsername = () : string => {
