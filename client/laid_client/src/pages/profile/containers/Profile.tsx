@@ -49,7 +49,7 @@ export default function Profile() {
   const [message, setMessage] = useState({ text: '', type: '' }); // type: 'success' or 'error'
 
   const genders = ['Male', 'Female', 'Other'];
-  const citizenships = Object.values(countries).map((country) => country.name);
+  const citizenships = Object.values(countries).map((country) => (country as any).name);
 
   useEffect(() => {
     const fetchProfile = async () => {
